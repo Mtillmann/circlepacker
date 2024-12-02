@@ -44,7 +44,7 @@ instance.render(imageData, imageWidth);
 ```
 ### UMD Browser
 ```html
-<script src=".../@mtillmann/circlepacker/dist/CirclePacker.umd.js"></script>
+<script src=".../@mtillmann/circlepacker/dist/index.umd.js"></script>
 <script>
     //note the namespace
     const instance = new MTCP.CirclePacker();
