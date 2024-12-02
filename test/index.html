@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>test</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <script type="module">
+    import {
+      CirclePacker,
+      fromBlob,
+      fromURL,
+      fromImage,
+      fromImageData,
+      fromContext2D,
+      fromCanvas,
+      fromSquare,
+      fromCircle,
+      fromRect
+    } from '../dist/index.js'
+
+    function row(target, test, result) {
+      const row = document.createElement('tr')
+      const testCell = document.createElement('td')
+      const resultCell = document.createElement('td')
+
+      testCell.textContent = test
+      resultCell.appendChild(result)
+
+      row.appendChild(testCell)
+      row.appendChild(resultCell)
+
+      document.querySelector(`#${target} tbody`).appendChild(row)
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+
+      const circle = fromCircle(50, 'red');
+      row('import', 'fromCircle', circle.asCanvas())
+
+      row('import', 'fromRect', fromRect(100, 50, 'blue').asCanvas())
+      row('import', 'fromSquare', fromSquare(100, 'green').asCanvas())
+
+      const canvas = document.createElement('canvas')
+      canvas.width = 100
+      canvas.height = 100
+      const context = canvas.getContext('2d', { willReadFrequently: true })
+      context.lineWidth = 20
+      context.strokeStyle = 'magenta'
+      context.beginPath()
+      context.moveTo(0, 50)
+      context.lineTo(100, 50)
+      context.moveTo(50, 0)
+      context.lineTo(50, 100)
+      context.stroke()
+      context.closePath()
+      row('import', 'fromCanvas', fromCanvas(canvas).asCanvas())
+
+      context.strokeStyle = 'turquoise'
+      context.clearRect(0, 0, 100, 100)
+      context.beginPath()
+      context.moveTo(0, 0)
+      context.lineTo(100, 100)
+      context.moveTo(100, 0)
+      context.lineTo(0, 100)
+      context.stroke()
+      context.closePath()
+
+      row('import', 'fromContext2D', fromContext2D(context).asCanvas())
+
+      context.strokeStyle = 'yellow'
+      context.clearRect(0, 0, 100, 100)
+      context.beginPath()
+      context.moveTo(0, 0)
+      context.lineTo(0, 100)
+      context.lineTo(100, 100)
+      context.lineTo(100, 0)
+      context.lineTo(0, 0)
+      context.stroke()
+      context.closePath()
+
+      const imageData = context.getImageData(0, 0, 100, 100)
+      row('import', 'fromImageData', fromImageData(imageData, 100).asCanvas())
+
+      context.clearRect(0, 0, 100, 100)
+      context.strokeStyle = 'hotpink'
+      //draw an ellipse
+      context.beginPath()
+      context.ellipse(50, 50, 50, 25, 0, 0, 2 * Math.PI)
+      context.stroke()
+      context.closePath()
+
+      const blob = canvas.toBlob(async (blob) => {
+        const instance = await fromBlob(blob);
+        row('import', 'fromBlob', instance.asCanvas())
+      })
+
+      const fu = await fromURL('image.png')
+      row('import', 'fromURL', fu.asCanvas({ scale: 1 }))
+
+      const image = new Image()
+
+      image.onload = async () => {
+        const instance = await fromImage(image)
+        row('import', 'fromImage', instance.asCanvas({ scale: 1 }))
+      }
+      image.src = 'image.png'
+
+
+      row('export', 'asSVG', fu.asSVG())
+
+
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(fu.asSVGString(), 'image/svg+xml')
+
+      row('export', 'asSVGString', doc.documentElement)
+
+      fu.asBlobURL({ format: 'image/jpeg', quality: 0.01, scale: 1 }).then((url) => {
+        const img = document.createElement('img')
+        img.src = url
+        row('export', 'asBlobURL{format:"image/jpeg", quality:0.01}', img)
+      })
+
+      fu.asBlobURL({ format: 'image/jpeg', quality: 1, scale: 1 }).then((url) => {
+        const img = document.createElement('img')
+        img.src = url
+        row('export', 'asBlobURL{format:"image/jpeg", quality:1}', img)
+      })
+
+      fu.asBlobURL({ format: 'image/png', quality: 1, scale: 0.5 }).then((url) => {
+        const img = document.createElement('img')
+        img.src = url
+        row('export', 'asBlobURL{format:"image/png", quality:1, scale:0.5}', img)
+      })
+
+      fu.asBlobURL({ format: 'image/png', quality: 1, scale: 3 }).then((url) => {
+        const img = document.createElement('img')
+        img.src = url
+        row('export', 'asBlobURL{format:"image/png", quality:1, scale:3}', img)
+      })
+
+      const img = document.createElement('img')
+      img.src = fu.asDataURL()
+      row('export', 'asDataURL', img)
+
+      const id = fu.asImageData()
+      const canvas2 = document.createElement('canvas')
+      canvas2.width = id.width
+      canvas2.height = id.height
+      const context2 = canvas2.getContext('2d')
+      context2.putImageData(id, 0, 0)
+      row('export', 'asImageData', canvas2)
+
+
+      row('options', '{minRadius:10, maxRadius:10}', fromCircle(50, 'red', { minRadius: 10, maxRadius: 10 }).asCanvas())
+      row('options', '{minRadius:2, maxRadius:2}', fromCircle(50, 'red', { minRadius: 2, maxRadius: 2 }).asCanvas())
+
+      row('options', '{numCircles:5}', fromCircle(50, 'red', { numCircles: 5 }).asCanvas())
+
+      row('options', '{colors:["#f00", "#0f0", "#00f"]}', fromCircle(50, 'red', { colors: ['#f00', '#0f0', '#00f'] }).asCanvas())
+
+      row('options', '{spacing:3}', fromCircle(50, 'red', { spacing: 3 }).asCanvas())
+
+      row('options', '{higherAccuracy:true}', fromCircle(50, 'red', { higherAccuracy: true }).asCanvas())
+
+      //create a canvas with a gradient to transparent
+      const canvas3 = document.createElement('canvas')
+      canvas3.width = 100
+      canvas3.height = 100
+      const context3 = canvas3.getContext('2d')
+      const gradient = context3.createLinearGradient(0, 0, 100, 0)
+      gradient.addColorStop(0, 'rgba(255, 0, 0, 0)')
+      gradient.addColorStop(0.33, 'rgba(255, 0, 0, 1)')
+      gradient.addColorStop(0.66, 'rgba(255, 0, 0, 1)')
+      gradient.addColorStop(1, 'rgba(255, 0, 0, 0)')
+      context3.fillStyle = gradient
+      context3.fillRect(0, 0, 100, 100)
+      row('options', '{minAlpha:1}', fromCanvas(canvas3).asCanvas())
+
+      row('options', '{minAlpha:0.5}', fromCanvas(canvas3, { minAlpha: 0.5 }).asCanvas())
+
+    })
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="display-5"><kbd>from*</kbd>-Import-Helpers</h1>
+        <table id="import" class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Test</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+
+        <h1 class="display-5"><kbd>as*</kbd>-Export-Helpers</h1>
+        <table id="export" class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Test</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+
+        <h1 class="display-5"><kbd>CirclePacker*</kbd> Constructor-Options</h1>
+        <table id="options" class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Test</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
