@@ -19,7 +19,6 @@ const configs = [structuredClone(config), structuredClone(config), {
   plugins: [terser()]
 }]
 
-
 configs[1].output.file = 'dist/index.umd.min.js'
 configs[1].plugins = [terser()]
 
