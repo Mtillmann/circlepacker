@@ -11,6 +11,8 @@ Simple circle-packing library based on [Ken Goulding's gist](https://gist.github
 
 ## Usage
 
+`npm install @mtillmann/circlepacker`
+
 Typically you'd use one of the `from*`-functions to create an instance and then use one of the `as*`-methods to render the circles to the format you need:
 
 ```javascript
