@@ -7,20 +7,8 @@
   <title>test</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <script type="module">
-    import {
-      CirclePacker,
-      fromBlob,
-      fromURL,
-      fromImage,
-      fromImageData,
-      fromContext2D,
-      fromCanvas,
-      fromSquare,
-      fromCircle,
-      fromRect
-    } from '../dist/index.js'
 
+  <script>
     function row(target, test, result) {
       const row = document.createElement('tr')
       const testCell = document.createElement('td')
@@ -34,6 +22,38 @@
 
       document.querySelector(`#${target} tbody`).appendChild(row)
     }
+
+  </script>
+
+  <script type="module">
+    import {
+      fromCircle
+    } from '../dist/index.min.js'
+
+    row('modules', 'index.min.js', fromCircle(50, 'red').asCanvas())
+
+  </script>
+
+  <script src="../dist/index.umd.min.js"></script>
+  <script>
+    window.addEventListener('load', () => {
+      row('modules', 'index.umd.min.js', MTCP.fromCircle(50, 'red').asCanvas())
+    });
+  </script>
+
+  <script type="module">
+    import {
+      CirclePacker,
+      fromBlob,
+      fromURL,
+      fromImage,
+      fromImageData,
+      fromContext2D,
+      fromCanvas,
+      fromSquare,
+      fromCircle,
+      fromRect
+    } from '../dist/index.js'
 
     document.addEventListener('DOMContentLoaded', async () => {
 
@@ -227,6 +247,21 @@
 
           </tbody>
         </table>
+
+        <h1 class="display-5">Compiled Module Formats</h1>
+        <table id="modules" class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Test</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+
+
       </div>
     </div>
   </div>

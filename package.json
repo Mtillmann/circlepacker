@@ -32,7 +32,11 @@
     "colorful",
     "creative-coding"
   ],
-  "author": "Martin Tillmann <mtillmann@gmail.com>",
+  "author": "Martin Tillmann<mtillmann@gmail.com>",
+  "homepage": "https://github.com/Mtillmann/circlepacker",
+  "bugs": {
+    "url": "https://github.com/Mtillmann/circlepacker/issues"
+  },
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",

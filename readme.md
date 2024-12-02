@@ -45,7 +45,7 @@ instance.render(imageData, imageWidth);
 <script src=".../@mtillmann/circlepacker/dist/CirclePacker.umd.js"></script>
 <script>
     //note the namespace
-    const instance = new CPF.CirclePacker();
+    const instance = new MTCP.CirclePacker();
     instance.render(imageData, imageWidth);
 </script>
 ```
