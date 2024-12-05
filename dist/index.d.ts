@@ -57,4 +57,4 @@ declare function fromSquare(edgeLength?: number, color?: string, options?: Parti
 declare function fromCircle(radius?: number, color?: string, options?: Partial<Options>): CirclePacker;
 declare function fromRect(width?: number, height?: number, color?: string, options?: Partial<Options>): CirclePacker;
 
-export { CirclePacker, fromBlob, fromCanvas, fromCircle, fromContext2D, fromImage, fromImageData, fromRect, fromSquare, fromURL };
+export { type Circle, CirclePacker, type ExportOptions, type Options, fromBlob, fromCanvas, fromCircle, fromContext2D, fromImage, fromImageData, fromRect, fromSquare, fromURL };

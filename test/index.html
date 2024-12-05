@@ -117,6 +117,11 @@
         row('import', 'fromBlob', instance.asCanvas())
       })
 
+      /*
+        const fu2 = await fromURL('../circle-packer-logo.png', {numCircles: 2500})
+        row('import', 'fromURL', fu2.asCanvas({ scale: 2 }))
+      */
+
       const fu = await fromURL('image.png')
       row('import', 'fromURL', fu.asCanvas({ scale: 1 }))
 
