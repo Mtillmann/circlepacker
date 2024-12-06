@@ -1,6 +1,6 @@
 {
   "name": "@mtillmann/circlepacker",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "simple circle-packing library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,8 @@
     "publish": "eslint . --fix && npm run build && npm publish --access public"
   },
   "files": [
-    "dist"
+    "dist",
+    "circlepacker.png"
   ],
   "keywords": [
     "circle-packing",
