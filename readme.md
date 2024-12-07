@@ -52,6 +52,25 @@ instance.render(imageData, imageWidth);
 </script>
 ```
 
+### node
+
+When using node, you need to install `canvas` (`npm install canvas@next`), then either pass the `CanvasRenderingContext2D` object to the `fromContext2D`-function, use the `fromCanvas`-function or a `CirclePacker`-instance's `render` method.
+
+```javascript
+import { fromCanvas, CirclePacker } from "@mtillmann/circlepacker";
+import { createCanvas } from "canvas"
+
+const canvas = createCanvas(200, 200)
+const ctx = canvas.getContext('2d')
+ctx.fillStyle = 'red'
+ctx.fillRect(0, 0, 200, 200)
+
+console.log(fromCanvas(canvas).asSVGString());
+```
+In node basically only `asSVGString` and `asArray` work. To create bitmaps, use
+`asArray` to get the circles, then draw them with the canvas library.
+
+
 ### Options
 Options can be passed to the class constructor and to any of the `from*` functions as the last argument. The following options are available:
 
