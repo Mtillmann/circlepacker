@@ -16,7 +16,7 @@
       minAlpha: 1
     };
     defaultExportOptions = {
-      scale: window.devicePixelRatio,
+      scale: globalThis.devicePixelRatio || 1,
       quality: 1,
       format: "image/png"
     };

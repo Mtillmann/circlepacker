@@ -14,7 +14,7 @@ export class CirclePacker {
   }
 
   defaultExportOptions: ExportOptions = {
-    scale: window.devicePixelRatio,
+    scale: globalThis.devicePixelRatio || 1,
     quality: 1,
     format: 'image/png',
   }

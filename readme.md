@@ -71,7 +71,7 @@ Export options can be passed to most of `as*` methods. The following options are
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| scale | `number` | `window.devicePixelRatio` | Scale of the output image - only useful for canvas and image renders. Default value prevents blurry images |
+| scale | `number` | `globalThis.devicePixelRatio || 1` | Scale of the output image - only useful for canvas and image renders. Default value prevents blurry images |
 | quality | `number` | 1 | Quality float of the desired image format. Only works when Image is rendered. |
 | format | `string` | 1 | Desired Format of rendered image |
 
