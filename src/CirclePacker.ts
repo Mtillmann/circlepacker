@@ -30,7 +30,7 @@ export class CirclePacker {
   constructor (options: Partial<Options> = {}) {
     this.options = { ...this.defaultOptions, ...options } as Options
 
-    if(['transparent', null, '', false, undefined].includes(this.options.background!)) {
+    if (['transparent', null, '', false, undefined].includes(this.options.background!)) {
       this.options.background = false
     }
 
