@@ -19,6 +19,7 @@ type Options = {
     higherAccuracy: boolean;
     colors: string | Array<string>;
     minAlpha: number;
+    background: string | boolean;
 };
 
 declare class CirclePacker {

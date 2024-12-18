@@ -13,7 +13,8 @@
       maxRadius: 10,
       higherAccuracy: false,
       colors: "auto",
-      minAlpha: 1
+      minAlpha: 1,
+      background: "transparent"
     };
     defaultExportOptions = {
       scale: globalThis.devicePixelRatio || 1,
@@ -26,6 +27,9 @@
     dims = { width: 0, height: 0 };
     constructor(options = {}) {
       this.options = { ...this.defaultOptions, ...options };
+      if (["transparent", null, "", false, void 0].includes(this.options.background)) {
+        this.options.background = false;
+      }
       for (let i = 0; i < this.options.numCircles; i++) {
         this.spareCircles.push({
           radius: this.options.minRadius + Math.random() * Math.random() * (this.options.maxRadius - this.options.minRadius)
@@ -103,7 +107,7 @@
       return this.placedCircles;
     }
     asSVGString() {
-      const svg = `<svg width="${this.dims.width}" height="${this.dims.height}" viewBox="0 0 ${this.dims.width} ${this.dims.height}" xmlns="http://www.w3.org/2000/svg">` + this.placedCircles.map((circle) => {
+      const svg = `<svg width="${this.dims.width}" height="${this.dims.height}" viewBox="0 0 ${this.dims.width} ${this.dims.height}" xmlns="http://www.w3.org/2000/svg">` + (this.options.background ? `<rect x="0" y="0" width="${this.dims.width}" height="${this.dims.height}" fill="${this.options.background}" />` : "") + this.placedCircles.map((circle) => {
         const { x, y, radius, color } = circle;
         return `<circle cx="${x}" cy="${y}" r="${radius}" fill="${color}" />`;
       }).join("") + "</svg>";
@@ -122,6 +126,10 @@
       canvas.width = this.dims.width * scale;
       canvas.height = this.dims.height * scale;
       const ctx = canvas.getContext("2d");
+      if (this.options.background) {
+        ctx.fillStyle = this.options.background;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
       for (const circle of this.placedCircles) {
         const { x, y, radius, color } = circle;
         ctx.fillStyle = String(color);

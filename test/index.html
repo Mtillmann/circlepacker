@@ -7,12 +7,18 @@
   <title>test</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
+  <style>
+    tr[class*="background"] td{
+      background-color: #eeeeee;
+    }
+  </style>
   <script>
     function row(target, test, result) {
       const row = document.createElement('tr')
       const testCell = document.createElement('td')
       const resultCell = document.createElement('td')
+
+      row.classList.add('row-' + test.replace(/[^a-z0-9]/gi, '-').toLowerCase())
 
       testCell.textContent = test
       resultCell.appendChild(result)
@@ -205,6 +211,20 @@
       row('options', '{minAlpha:1}', fromCanvas(canvas3).asCanvas())
 
       row('options', '{minAlpha:0.5}', fromCanvas(canvas3, { minAlpha: 0.5 }).asCanvas())
+
+      row('options', '{background:null}', fromCircle(50, 'red', { background: null }).asCanvas())
+
+      row('options', '{background:""}', fromCircle(50, 'red', { background: '' }).asCanvas())
+
+      row('options', '{background:false}', fromCircle(50, 'red', { background: false }).asCanvas())
+
+      row('options', '{background:transparent}', fromCircle(50, 'red', { background: 'transparent' }).asCanvas())
+
+      row('options', '{background:undefined}', fromCircle(50, 'red', { background: undefined }).asCanvas())
+
+      row('options', '{background:"yellow"} / canvas', fromCircle(50, 'red', { background: "yellow" }).asCanvas())
+
+      row('options', '{background:"yellow"} / svg', fromCircle(50, 'red', { background: "yellow" }).asSVG())
 
     })
   </script>

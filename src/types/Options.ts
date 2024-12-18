@@ -5,5 +5,6 @@ export type Options = {
   maxRadius: number,
   higherAccuracy: boolean,
   colors: string | Array<string>,
-  minAlpha: number
+  minAlpha: number,
+  background: string | boolean,
 }

@@ -11,6 +11,7 @@ export class CirclePacker {
     higherAccuracy: false,
     colors: 'auto',
     minAlpha: 1,
+    background: 'transparent',
   }
 
   defaultExportOptions: ExportOptions = {
@@ -28,6 +29,10 @@ export class CirclePacker {
 
   constructor (options: Partial<Options> = {}) {
     this.options = { ...this.defaultOptions, ...options } as Options
+
+    if(['transparent', null, '', false, undefined].includes(this.options.background!)) {
+      this.options.background = false
+    }
 
     for (let i = 0; i < this.options.numCircles!; i++) {
       this.spareCircles.push({
@@ -122,6 +127,7 @@ export class CirclePacker {
   asSVGString (): string {
     const svg =
       `<svg width="${this.dims.width}" height="${this.dims.height}" viewBox="0 0 ${this.dims.width} ${this.dims.height}" xmlns="http://www.w3.org/2000/svg">` +
+      (this.options.background ? `<rect x="0" y="0" width="${this.dims.width}" height="${this.dims.height}" fill="${this.options.background}" />` : '') +
       this.placedCircles
         .map(circle => {
           const { x, y, radius, color } = circle
@@ -150,6 +156,12 @@ export class CirclePacker {
     canvas.height = this.dims.height * scale
 
     const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!
+
+    if (this.options.background) {
+      ctx.fillStyle = this.options.background as string
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
+
     for (const circle of this.placedCircles) {
       const { x, y, radius, color } = circle
       ctx.fillStyle = String(color)
