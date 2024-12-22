@@ -17,10 +17,10 @@ const configs = [structuredClone(config), structuredClone(config), {
     file: 'dist/index.min.js',
     format: 'esm'
   },
-  plugins: [ url({
+  plugins: [url({
     include: ['**/*.ts'], // Handles your worker file
     limit: 0, // Forces the worker to be emitted as a separate file
-  }),terser()]
+  }), terser()]
 }]
 
 configs[1].output.file = 'dist/index.umd.min.js'
