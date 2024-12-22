@@ -17,21 +17,25 @@ Typically you'd use one of the `from*`-functions to create an instance and then 
 
 ```javascript
 import { fromCircle } from "@mtillmann/circlepacker";
-document.body.appendChild(fromCircle(200, 'red').asSVG());
+document.body.appendChild((await fromCircle(200, 'red')).asSVG());
+//or
+fromCircle(200, 'red').then((instance) => {
+    document.body.appendChild(instance.asSVG());
+})
 ```
 
-The basic concept is to create an instance of `CirclePacker` and call the `render` method with an `ImageData` object and the width of the image. The `render` method will generate and return a list of packed circles for the given `ImageData` object.
+The basic concept is to create an instance of `CirclePacker` and call the `pack` method with an `ImageData` object and the width of the image. The `pack` method will generate and return a list of packed circles for the given `ImageData` object.
 
 The `CirclePacker` provides several helpers that return renderings of the packed circles.
 
-> The `render`-method always needs the width of the source image as the second argument to work correctly!
+> The `pack`-method always needs the width of the source image as the second argument to work correctly!
 
 ### ESM Bundler
 ```javascript
 import { CirclePacker } from "@mtillmann/circlepacker";
 
 const instance = new CirclePacker();
-instance.render(imageData, imageWidth);
+await instance.pack(imageData, imageWidth);
 ```
 ### ESM Browser
 ```html
@@ -39,7 +43,7 @@ instance.render(imageData, imageWidth);
     import { CirclePacker } from ".../@mtillmann/circlepacker/dist/index.js";
 
     const instance = new CirclePacker();
-    instance.render(imageData, imageWidth);
+    await instance.pack(imageData, imageWidth);
 </script>
 ```
 ### UMD Browser
@@ -48,13 +52,13 @@ instance.render(imageData, imageWidth);
 <script>
     //note the namespace
     const instance = new MTCP.CirclePacker();
-    instance.render(imageData, imageWidth);
+    await instance.pack(imageData, imageWidth);
 </script>
 ```
 
 ### node
 
-When using node, you need to install `canvas` (`npm install canvas@next`), then either pass the `CanvasRenderingContext2D` object to the `fromContext2D`-function, use the `fromCanvas`-function or a `CirclePacker`-instance's `render` method.
+When using node, you need to install `canvas` (`npm install canvas@next`), then either pass the `CanvasRenderingContext2D` object to the `fromContext2D`-function, use the `fromCanvas`-function or a `CirclePacker`-instance's `pack` method.
 
 ```javascript
 import { fromCanvas, CirclePacker } from "@mtillmann/circlepacker";
@@ -65,7 +69,7 @@ const ctx = canvas.getContext('2d')
 ctx.fillStyle = 'red'
 ctx.fillRect(0, 0, 200, 200)
 
-console.log(fromCanvas(canvas).asSVGString());
+console.log((await fromCanvas(canvas)).asSVGString());
 ```
 In node basically only `asSVGString` and `asArray` work. To create bitmaps, use
 `asArray` to get the circles, then draw them with the canvas library.
@@ -83,6 +87,8 @@ Options can be passed to the class constructor and to any of the `from*` functio
 | higherAccuracy | `boolean` | false | Use higher accuracy for circle packing |
 | colors | `string\|Array<string>` | 'auto' | If 'auto', the input ImageData's colors are used. If an array of colors is given, the given colors are used randomly |
 | minAlpha | `number` | 1 | Minimum alpha value of input pixels to be considered. If the alpha value of a pixel is below this value, it is ignored |
+| useMainThread | `boolean` | false | Use main thread for circle packing - disables Web Worker where available |
+| reuseWorker | `boolean` | true | When set to false, the Worker instances are terminated after use |
 
 ### ExportOptions
 
@@ -97,35 +103,37 @@ Export options can be passed to most of `as*` methods. The following options are
 
 ## Input Helpers
 
+All input helpers are async functions that return a `CirclePacker` instance.
+
 ### `async!` fromBlob(blob:Blob, options:Options)
 
 Creates instance from blob data with given options.
 
-### fromCanvas(canvas:HTMLCanvasElement, options:Options)
+### `async!` fromCanvas(canvas:HTMLCanvasElement, options:Options)
 
 Creates instance from canvas element.
 
-### fromCircle((radius:number, color:string,options:Options)
+### `async!` fromCircle((radius:number, color:string,options:Options)
 
 Draws a circle with given radius and color, then creates instance from it.
 
-### fromContext2D(ctx:CanvasRenderingContext2D, options:Options)
+### `async!` fromContext2D(ctx:CanvasRenderingContext2D, options:Options)
 
 Creates instance from canvas context.
 
-### fromImage(image:HTMLImageElement, options:Options)
+### `async!` fromImage(image:HTMLImageElement, options:Options)
 
 Creates instance from image element.
 
-### fromImageData(imageData:ImageData, imageWidth:number, options:Options)
+### `async!` fromImageData(imageData:ImageData, imageWidth:number, options:Options)
 
 Creates an instance from given image data. Alias for `new CirclePacker(imageData, imageWidth, options).render(imageData, imageWidth)`.
 
-### fromRect(width:number, height:number, color:string, options:Options)
+### `async!` fromRect(width:number, height:number, color:string, options:Options)
 
 Draws a rectangle with given width, height and color, then creates instance from it.
 
-### fromSquare(edgeLength:number = 200, color:string="black", options:Options)
+### `async!` fromSquare(edgeLength:number = 200, color:string="black", options:Options)
 
 Draws a square with given edge length and color, then creates instance from it.
 
@@ -135,7 +143,7 @@ Fetches image from given url, then creates instance from it.
 
 ## Output Helpers
 
-Output helpers exist on the instance and can be called after the `render` method has been called.
+Output helpers exist on the instance and can be called after the `pack` method has been called.
 
 ### asCanvas(options:ExportOptions)
 

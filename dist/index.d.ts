@@ -20,6 +20,8 @@ type Options = {
     colors: string | Array<string>;
     minAlpha: number;
     background: string | boolean;
+    useMainThread: boolean;
+    reuseWorker: boolean;
 };
 
 declare class CirclePacker {
@@ -32,13 +34,10 @@ declare class CirclePacker {
         width: number;
         height: number;
     };
+    worker: Worker | null;
     constructor(options?: Partial<Options>);
-    isFilled(imageData: ImageData, x: number, y: number): boolean;
-    isCircleInside(imageData: ImageData, x: number, y: number, r: number): boolean;
-    touchesPlacedCircle(x: number, y: number, r: number): boolean;
-    dist(x1: number, y1: number, x2: number, y2: number): number;
     getCircleColor(imageData: ImageData, x: number, y: number): string | boolean;
-    render(imageData: ImageData, imageWidth: number): Circle[];
+    pack(imageData: ImageData, imageWidth: number): Promise<Circle[]>;
     asSVGString(): string;
     asSVG(): SVGElement;
     asCanvas(options?: ExportOptions): HTMLCanvasElement;
@@ -50,12 +49,12 @@ declare class CirclePacker {
 }
 declare function fromBlob(blob: Blob, options?: Partial<Options>): Promise<CirclePacker>;
 declare function fromURL(url: string | URL, options?: Partial<Options>): Promise<CirclePacker>;
-declare function fromImage(image: HTMLImageElement, options?: Partial<Options>): CirclePacker;
-declare function fromImageData(imageData: ImageData, imageWidth: number, options?: Partial<Options>): CirclePacker;
-declare function fromContext2D(ctx: CanvasRenderingContext2D, options?: Partial<Options>): CirclePacker;
-declare function fromCanvas(canvas: HTMLCanvasElement, options?: Partial<Options>): CirclePacker;
-declare function fromSquare(edgeLength?: number, color?: string, options?: Partial<Options>): CirclePacker;
-declare function fromCircle(radius?: number, color?: string, options?: Partial<Options>): CirclePacker;
-declare function fromRect(width?: number, height?: number, color?: string, options?: Partial<Options>): CirclePacker;
+declare function fromImage(image: HTMLImageElement, options?: Partial<Options>): Promise<CirclePacker>;
+declare function fromImageData(imageData: ImageData, imageWidth: number, options?: Partial<Options>): Promise<CirclePacker>;
+declare function fromContext2D(ctx: CanvasRenderingContext2D, options?: Partial<Options>): Promise<CirclePacker>;
+declare function fromCanvas(canvas: HTMLCanvasElement, options?: Partial<Options>): Promise<CirclePacker>;
+declare function fromSquare(edgeLength?: number, color?: string, options?: Partial<Options>): Promise<CirclePacker>;
+declare function fromCircle(radius?: number, color?: string, options?: Partial<Options>): Promise<CirclePacker>;
+declare function fromRect(width?: number, height?: number, color?: string, options?: Partial<Options>): Promise<CirclePacker>;
 
 export { type Circle, CirclePacker, type ExportOptions, type Options, fromBlob, fromCanvas, fromCircle, fromContext2D, fromImage, fromImageData, fromRect, fromSquare, fromURL };

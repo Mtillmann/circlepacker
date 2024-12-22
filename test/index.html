@@ -36,14 +36,17 @@
       fromCircle
     } from '../dist/index.min.js'
 
-    row('modules', 'index.min.js', fromCircle(50, 'red').asCanvas())
+    (async () => {
+      row('modules', 'index.min.js', (await fromCircle(50, 'red')).asCanvas())
+    })()
+    
 
   </script>
 
   <script src="../dist/index.umd.min.js"></script>
   <script>
-    window.addEventListener('load', () => {
-      row('modules', 'index.umd.min.js', MTCP.fromCircle(50, 'red').asCanvas())
+    window.addEventListener('load', async () => {
+      row('modules', 'index.umd.min.js', (await MTCP.fromCircle(50, 'red')).asCanvas())
     });
   </script>
 
@@ -63,11 +66,13 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
 
-      const circle = fromCircle(50, 'red');
+      const circle = await fromCircle(50, 'red');
       row('import', 'fromCircle', circle.asCanvas())
 
-      row('import', 'fromRect', fromRect(100, 50, 'blue').asCanvas())
-      row('import', 'fromSquare', fromSquare(100, 'green').asCanvas())
+      const rect = await fromRect(100, 50, 'blue');
+      row('import', 'fromRect', rect.asCanvas())
+      const square = await fromSquare(100, 'green')
+      row('import', 'fromSquare', square.asCanvas())
 
       const canvas = document.createElement('canvas')
       canvas.width = 100
@@ -82,7 +87,10 @@
       context.lineTo(50, 100)
       context.stroke()
       context.closePath()
-      row('import', 'fromCanvas', fromCanvas(canvas).asCanvas())
+
+      const canvasInstance = await fromCanvas(canvas)
+
+      row('import', 'fromCanvas', canvasInstance.asCanvas())
 
       context.strokeStyle = 'turquoise'
       context.clearRect(0, 0, 100, 100)
@@ -94,7 +102,9 @@
       context.stroke()
       context.closePath()
 
-      row('import', 'fromContext2D', fromContext2D(context).asCanvas())
+      const contextInstance = await fromContext2D(context)  
+
+      row('import', 'fromContext2D', contextInstance.asCanvas())
 
       context.strokeStyle = 'yellow'
       context.clearRect(0, 0, 100, 100)
@@ -108,7 +118,8 @@
       context.closePath()
 
       const imageData = context.getImageData(0, 0, 100, 100)
-      row('import', 'fromImageData', fromImageData(imageData, 100).asCanvas())
+      const imageDataInstance = await fromImageData(imageData, 100)
+      row('import', 'fromImageData', imageDataInstance.asCanvas())
 
       context.clearRect(0, 0, 100, 100)
       context.strokeStyle = 'hotpink'
@@ -118,6 +129,7 @@
       context.stroke()
       context.closePath()
 
+      
       const blob = canvas.toBlob(async (blob) => {
         const instance = await fromBlob(blob);
         row('import', 'fromBlob', instance.asCanvas())
@@ -129,7 +141,7 @@
       */
 
       const fu = await fromURL('image.png')
-      row('import', 'fromURL', fu.asCanvas({ scale: 1 }))
+      row('import', 'fromURL', await fu.asCanvas({ scale: 1 }))
 
       const image = new Image()
 
@@ -185,16 +197,16 @@
       row('export', 'asImageData', canvas2)
 
 
-      row('options', '{minRadius:10, maxRadius:10}', fromCircle(50, 'red', { minRadius: 10, maxRadius: 10 }).asCanvas())
-      row('options', '{minRadius:2, maxRadius:2}', fromCircle(50, 'red', { minRadius: 2, maxRadius: 2 }).asCanvas())
+      row('options', '{minRadius:10, maxRadius:10}', (await fromCircle(50, 'red', { minRadius: 10, maxRadius: 10 })).asCanvas())
+      row('options', '{minRadius:2, maxRadius:2}', (await fromCircle(50, 'red', { minRadius: 2, maxRadius: 2 })).asCanvas())
 
-      row('options', '{numCircles:5}', fromCircle(50, 'red', { numCircles: 5 }).asCanvas())
+      row('options', '{numCircles:5}', (await fromCircle(50, 'red', { numCircles: 5 })).asCanvas())
 
-      row('options', '{colors:["#f00", "#0f0", "#00f"]}', fromCircle(50, 'red', { colors: ['#f00', '#0f0', '#00f'] }).asCanvas())
+      row('options', '{colors:["#f00", "#0f0", "#00f"]}', (await fromCircle(50, 'red', { colors: ['#f00', '#0f0', '#00f'] })).asCanvas())
 
-      row('options', '{spacing:3}', fromCircle(50, 'red', { spacing: 3 }).asCanvas())
+      row('options', '{spacing:3}', (await fromCircle(50, 'red', { spacing: 3 })).asCanvas())
 
-      row('options', '{higherAccuracy:true}', fromCircle(50, 'red', { higherAccuracy: true }).asCanvas())
+      row('options', '{higherAccuracy:true}', (await fromCircle(50, 'red', { higherAccuracy: true })).asCanvas())
 
       //create a canvas with a gradient to transparent
       const canvas3 = document.createElement('canvas')
@@ -208,23 +220,37 @@
       gradient.addColorStop(1, 'rgba(255, 0, 0, 0)')
       context3.fillStyle = gradient
       context3.fillRect(0, 0, 100, 100)
-      row('options', '{minAlpha:1}', fromCanvas(canvas3).asCanvas())
+      row('options', '{minAlpha:1}', (await fromCanvas(canvas3)).asCanvas())
 
-      row('options', '{minAlpha:0.5}', fromCanvas(canvas3, { minAlpha: 0.5 }).asCanvas())
+      row('options', '{minAlpha:0.5}', (await fromCanvas(canvas3, { minAlpha: 0.5 })).asCanvas())
 
-      row('options', '{background:null}', fromCircle(50, 'red', { background: null }).asCanvas())
+      row('options', '{background:null}', (await fromCircle(50, 'red', { background: null })).asCanvas())
 
-      row('options', '{background:""}', fromCircle(50, 'red', { background: '' }).asCanvas())
+      row('options', '{background:""}', (await fromCircle(50, 'red', { background: '' })).asCanvas())
 
-      row('options', '{background:false}', fromCircle(50, 'red', { background: false }).asCanvas())
+      row('options', '{background:false}', (await fromCircle(50, 'red', { background: false })).asCanvas())
 
-      row('options', '{background:transparent}', fromCircle(50, 'red', { background: 'transparent' }).asCanvas())
+      row('options', '{background:transparent}', (await fromCircle(50, 'red', { background: 'transparent' })).asCanvas())
 
-      row('options', '{background:undefined}', fromCircle(50, 'red', { background: undefined }).asCanvas())
+      row('options', '{background:undefined}', (await fromCircle(50, 'red', { background: undefined })).asCanvas())
 
-      row('options', '{background:"yellow"} / canvas', fromCircle(50, 'red', { background: "yellow" }).asCanvas())
+      row('options', '{background:"yellow"} / canvas', (await fromCircle(50, 'red', { background: "yellow" })).asCanvas())
 
-      row('options', '{background:"yellow"} / svg', fromCircle(50, 'red', { background: "yellow" }).asSVG())
+      row('options', '{background:"yellow"} / svg', (await fromCircle(50, 'red', { background: "yellow" })).asSVG())
+
+
+      const mainThreadInstance = await fromCircle(50, 'red', { useMainThread: true })
+      const mtiSpan = document.createElement('span')
+      mtiSpan.textContent = mainThreadInstance.worker === null ? 'Main Thread' : 'Worker Thread'
+      
+      row('options', '{useMainThread:true}', mtiSpan)
+
+      const reuseWorkerInstance = await fromCircle(50, 'red', { reuseWorker: false })
+      const rewSpan = document.createElement('span')
+      rewSpan.textContent = mainThreadInstance.worker === null ? 'Worker terminated' : 'Worker still exists'
+      
+      row('options', '{reuseWorker: false}', rewSpan)
+
 
     })
   </script>

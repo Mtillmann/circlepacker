@@ -1,6 +1,7 @@
 import { Circle } from './types/Circle'
 import { ExportOptions } from './types/ExportOptions'
 import { Options } from './types/Options'
+import Core from './Core'
 
 export class CirclePacker {
   defaultOptions: Options = {
@@ -12,6 +13,8 @@ export class CirclePacker {
     colors: 'auto',
     minAlpha: 1,
     background: 'transparent',
+    useMainThread: false,
+    reuseWorker: true
   }
 
   defaultExportOptions: ExportOptions = {
@@ -27,6 +30,8 @@ export class CirclePacker {
 
   dims: { width: number; height: number } = { width: 0, height: 0 }
 
+  worker: Worker | null = null
+
   constructor (options: Partial<Options> = {}) {
     this.options = { ...this.defaultOptions, ...options } as Options
 
@@ -40,39 +45,6 @@ export class CirclePacker {
       } as Circle)
     }
     this.spareCircles.sort((a, b) => a.radius - b.radius)
-  }
-
-  isFilled (imageData: ImageData, x: number, y: number): boolean {
-    x = Math.round(x)
-    y = Math.round(y)
-    return imageData.data[(this.dims.width * y + x) * 4 + 3] > this.options.minAlpha!
-  }
-
-  isCircleInside (imageData: ImageData, x: number, y: number, r: number): boolean {
-    if (!this.isFilled(imageData, x, y - r)) return false
-    if (!this.isFilled(imageData, x, y + r)) return false
-    if (!this.isFilled(imageData, x + r, y)) return false
-    if (!this.isFilled(imageData, x - r, y)) return false
-    if (this.options.higherAccuracy) {
-      const o = Math.cos(Math.PI / 4)
-      if (!this.isFilled(imageData, x + o, y + o)) return false
-      if (!this.isFilled(imageData, x - o, y + o)) return false
-      if (!this.isFilled(imageData, x - o, y - o)) return false
-      if (!this.isFilled(imageData, x + o, y - o)) return false
-    }
-    return true
-  }
-
-  touchesPlacedCircle (x: number, y: number, r: number): boolean {
-    return this.placedCircles.some((circle: Circle) => {
-      return this.dist(x, y, circle.x!, circle.y!) < circle.radius + r + this.options.spacing!
-    })
-  }
-
-  dist (x1: number, y1: number, x2: number, y2: number): number {
-    const a = x1 - x2
-    const b = y1 - y2
-    return Math.sqrt(a * a + b * b)
   }
 
   getCircleColor (imageData: ImageData, x: number, y: number): string | boolean {
@@ -95,31 +67,39 @@ export class CirclePacker {
     return this.options.colors![Math.floor(Math.random() * this.options.colors!.length)]
   }
 
-  render (imageData: ImageData, imageWidth: number): Circle[] {
-    let i: number = this.spareCircles.length
+  async pack (imageData: ImageData, imageWidth: number): Promise<Circle[]> {
+    let circles: Circle[] = []
+
+    if (typeof Worker === 'undefined' || this.options.useMainThread) {
+      circles = Core.pack(imageData, imageWidth, this.spareCircles, this.options)
+    } else {
+      if (!this.worker) {
+        this.worker = new Worker('%%WORKER_URL')
+      }
+      circles = await new Promise((resolve) => {
+        this.worker!.onmessage = (e) => resolve(e.data)
+        this.worker!.postMessage({
+          imageData,
+          imageWidth,
+          spareCircles: this.spareCircles,
+          options: this.options
+        })
+      })
+      if (!this.options.reuseWorker) {
+        this.worker.terminate()
+      }
+    }
 
     this.dims = { width: imageWidth, height: imageData.data.length / imageWidth / 4 }
 
-    while (i > 0) {
-      i--
-      const circle: Circle = this.spareCircles[i]
-      let safety = 1000
-      while (!circle.x && safety-- > 0) {
-        const x = Math.random() * this.dims.width
-        const y = Math.random() * this.dims.height
-        if (this.isCircleInside(imageData, x, y, circle.radius)) {
-          if (!this.touchesPlacedCircle(x, y, circle.radius)) {
-            const color = this.getCircleColor(imageData, x, y)
-            if (color) {
-              circle.x = x
-              circle.y = y
-              circle.color = color as string
-              this.placedCircles.push(circle)
-            }
-          }
-        }
+    this.placedCircles = circles.reduce((acc:Circle[], circle:Circle) => {
+      const color = this.getCircleColor(imageData, circle.x!, circle.y!)
+      if (color) {
+        circle.color = color as string
+        acc.push(circle)
       }
-    }
+      return acc
+    }, [])
 
     return this.placedCircles
   }
@@ -227,39 +207,39 @@ export async function fromURL (url: string | URL, options: Partial<Options> = {}
     img.src = url
   })
 
-  return fromImage(img, options)
+  return await fromImage(img, options)
 }
 
-export function fromImage (image: HTMLImageElement, options: Partial<Options> = {}): CirclePacker {
+export async function fromImage (image: HTMLImageElement, options: Partial<Options> = {}): Promise<CirclePacker> {
   const canvas = document.createElement('canvas')
   canvas.width = image.width
   canvas.height = image.height
   const ctx = canvas.getContext('2d')!
   ctx.drawImage(image, 0, 0)
 
-  return fromContext2D(ctx, options)
+  return await fromContext2D(ctx, options)
 }
 
-export function fromImageData (imageData: ImageData, imageWidth: number, options: Partial<Options> = {}): CirclePacker {
+export async function fromImageData (imageData: ImageData, imageWidth: number, options: Partial<Options> = {}): Promise<CirclePacker> {
   const cf = new CirclePacker(options)
-  cf.render(imageData, imageWidth)
+  await cf.pack(imageData, imageWidth)
   return cf
 }
 
-export function fromContext2D (ctx: CanvasRenderingContext2D, options: Partial<Options> = {}): CirclePacker {
-  return fromImageData(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height), ctx.canvas.width, options)
+export async function fromContext2D (ctx: CanvasRenderingContext2D, options: Partial<Options> = {}): Promise<CirclePacker> {
+  return await fromImageData(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height), ctx.canvas.width, options)
 }
 
-export function fromCanvas (canvas: HTMLCanvasElement, options: Partial<Options> = {}): CirclePacker {
+export async function fromCanvas (canvas: HTMLCanvasElement, options: Partial<Options> = {}): Promise<CirclePacker> {
   const ctx = canvas.getContext('2d')!
-  return fromContext2D(ctx, options)
+  return await fromContext2D(ctx, options)
 }
 
-export function fromSquare (edgeLength: number = 200, color: string = 'black', options: Partial<Options> = {}): CirclePacker {
-  return fromRect(edgeLength, edgeLength, color, options)
+export async function fromSquare (edgeLength: number = 200, color: string = 'black', options: Partial<Options> = {}): Promise<CirclePacker> {
+  return await fromRect(edgeLength, edgeLength, color, options)
 }
 
-export function fromCircle (radius: number = 100, color: string = 'black', options: Partial<Options> = {}): CirclePacker {
+export async function fromCircle (radius: number = 100, color: string = 'black', options: Partial<Options> = {}): Promise<CirclePacker> {
   const canvas = document.createElement('canvas')
   canvas.width = radius * 2
   canvas.height = radius * 2
@@ -269,15 +249,15 @@ export function fromCircle (radius: number = 100, color: string = 'black', optio
   ctx.arc(radius, radius, radius, 0, 2 * Math.PI)
   ctx.closePath()
   ctx.fill()
-  return fromContext2D(ctx, options)
+  return await fromContext2D(ctx, options)
 }
 
-export function fromRect (width: number = 200, height: number = 200, color: string = 'black', options: Partial<Options> = {}): CirclePacker {
+export async function fromRect (width: number = 200, height: number = 200, color: string = 'black', options: Partial<Options> = {}): Promise<CirclePacker> {
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
   const ctx = canvas.getContext('2d')!
   ctx.fillStyle = color
   ctx.fillRect(0, 0, width, height)
-  return fromContext2D(ctx, options)
+  return await fromContext2D(ctx, options)
 }

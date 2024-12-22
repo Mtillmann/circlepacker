@@ -7,4 +7,6 @@ export type Options = {
   colors: string | Array<string>,
   minAlpha: number,
   background: string | boolean,
+  useMainThread: boolean,
+  reuseWorker: boolean
 }
