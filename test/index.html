@@ -204,6 +204,10 @@
 
       row('options', '{colors:["#f00", "#0f0", "#00f"]}', (await fromCircle(50, 'red', { colors: ['#f00', '#0f0', '#00f'] })).asCanvas())
 
+      row('options', '{colors:[]}', (await fromCircle(50, 'red', { colors: [] })).asCanvas())
+
+      row('options', '{colors:"auto"}', (await fromCircle(50, 'red', { colors: "auto" })).asCanvas())
+
       row('options', '{spacing:3}', (await fromCircle(50, 'red', { spacing: 3 })).asCanvas())
 
       row('options', '{higherAccuracy:true}', (await fromCircle(50, 'red', { higherAccuracy: true })).asCanvas())

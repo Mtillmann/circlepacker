@@ -39,6 +39,10 @@ export class CirclePacker {
       this.options.background = false
     }
 
+    if (this.options.colors === 'auto') {
+      this.options.colors = []
+    }
+
     for (let i = 0; i < this.options.numCircles!; i++) {
       this.spareCircles.push({
         radius: this.options.minRadius! + Math.random() * Math.random() * (this.options.maxRadius! - this.options.minRadius!),
@@ -48,7 +52,7 @@ export class CirclePacker {
   }
 
   getCircleColor (imageData: ImageData, x: number, y: number): string | boolean {
-    if (this.options.colors === 'auto') {
+    if (this.options.colors!.length === 0) {
       x = Math.round(x)
       y = Math.round(y)
       const i = (this.dims.width * y + x) * 4
