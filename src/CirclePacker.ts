@@ -53,7 +53,7 @@ export class CirclePacker {
 
   getCircleColor (imageData: ImageData, x: number, y: number): string | boolean {
     if (this.options.colors!.length === 0) {
-      x = Math.round(x)
+      x = Math.min(Math.round(x), this.dims.width - 1)
       y = Math.round(y)
       const i = (this.dims.width * y + x) * 4
 

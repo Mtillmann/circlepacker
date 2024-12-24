@@ -100,7 +100,7 @@
     }
     getCircleColor(imageData, x, y) {
       if (this.options.colors.length === 0) {
-        x = Math.round(x);
+        x = Math.min(Math.round(x), this.dims.width - 1);
         y = Math.round(y);
         const i = (this.dims.width * y + x) * 4;
         if (imageData.data[i + 3] / 255 < this.options.minAlpha) {

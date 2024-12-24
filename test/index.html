@@ -66,6 +66,17 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
 
+      const xxxCanvas = document.createElement('canvas')
+      xxxCanvas.width = 100
+      xxxCanvas.height = 100
+      const xxxContext = xxxCanvas.getContext('2d')
+      xxxContext.fillStyle = 'yellow'
+      xxxContext.fillRect(0, 0, 50, 100)
+      xxxContext.fillStyle = 'blue'
+      xxxContext.fillRect(50, 0, 50, 100)
+      row('import', 'avoid spillover', (await fromCanvas(xxxCanvas)).asCanvas())
+
+
       const circle = await fromCircle(50, 'red');
       row('import', 'fromCircle', circle.asCanvas())
 
