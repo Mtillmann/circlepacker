@@ -8,6 +8,8 @@ Simple circle-packing library based on [Ken Goulding's gist](https://gist.github
 - helper functions for reading and writing images
 - passes through original colors 
 - fix misc issues with original code
+- offloads circle packing to a web worker
+- works with node
 
 ## Usage
 
